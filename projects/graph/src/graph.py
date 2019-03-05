@@ -37,7 +37,7 @@ class Stack():
         return (len(self.stack))
 
 
-class Graph():
+class Graph:
     """Represent a graph as a dictionary of vertices mapping labels to edges."""
 
     def __init__(self):
@@ -99,18 +99,56 @@ class Graph():
                 for neighbor in self.vertices[v]:
                     s.push(neighbor)
 
-
-
     def dft_recursion(self, starting_vertex, path=[]):
         path += [starting_vertex]
-
         print(path)
-
         for neighbor in self.vertices[starting_vertex]:
             if neighbor not in path:
                 path = self.dft_recursion(neighbor, path)
-
         return path
+
+    def bfs(self, start, end):
+        verts = self.vertices
+        # maintain a queue of paths
+        queue = []
+        # push the first path into the queue
+        queue.append([start])
+        while len(queue) > 0:
+            # get the first path from the queue
+            path = queue.pop(0)
+            # get the last node from the path
+            node = path[-1]
+            # path found
+            if node == end:
+                return print(path)
+            # enumerate all adjacent nodes, construct a new path and push it into the queue
+            for adjacent in verts.get(node, []):
+                new_path = list(path)
+                new_path.append(adjacent)
+                queue.append(new_path)
+
+def dfs(self, start, end):
+        # Create an empty stack
+        s = Stack()
+        # Create an empty set of visited vertices
+        visited = set()
+        # Put the starting vertex in our Stack
+        s.push(start)
+        # While the value passed as "end" is not in the visit array....
+        while end not in visited:
+            # Pop the top node from the stack
+            v = s.pop()
+            # If that node has not been visted...
+            if v not in visited:
+                    # Mark it as visited
+                print(v)
+                visited.add(v)
+                # Then, put all of it's children into the stack
+                if v is not None:
+                    for neighbor in self.vertices[v]:
+                        s.push(neighbor)
+                else:
+                    return print("they don't connect")
 
 
 graph = Graph()  # Instantiate your graph
@@ -121,16 +159,16 @@ graph.add_vertex('4')
 graph.add_vertex('5')
 graph.add_vertex('6')
 graph.add_vertex('7')
-graph.add_directed_edge('5', '3')
-graph.add_directed_edge('6', '3')
-graph.add_directed_edge('7', '1')
-graph.add_directed_edge('4', '7')
-graph.add_directed_edge('1', '2')
-graph.add_directed_edge('7', '6')
-graph.add_directed_edge('2', '4')
-graph.add_directed_edge('3', '5')
-graph.add_directed_edge('2', '3')
-graph.add_directed_edge('4', '6')
+graph.add_directed_edge('5', '3')  # 1
+graph.add_directed_edge('6', '3')  # 2
+graph.add_directed_edge('7', '1')  # 3
+graph.add_directed_edge('4', '7')  # 4
+graph.add_directed_edge('1', '2')  # 5
+graph.add_directed_edge('7', '6')  # 6
+graph.add_directed_edge('2', '4')  # 7
+graph.add_directed_edge('3', '5')  # 8
+graph.add_directed_edge('2', '3')  # 9
+graph.add_directed_edge('4', '6')  # 10
 # print(graph.vertices)
 
-(graph.dft_recursion('2'))
+graph.bfs('2', '7')
