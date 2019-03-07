@@ -101,22 +101,7 @@ class SocialGraph:
                        q.put(list(path) + [friendship])
                     
         return visited
-
-    def social_paths(self, userID):
-        visited = {}
-        q = Queue()
-        q.enqueue([userID])
-        while q.size > 0:
-            path = q.dequeue()
-            newUserID = path[-1]
-            if newUserID not in visited:
-                visited[newUserID] = path
-                for friendID in self.friendships[newUserID]:
-                    if friendID not in visited:
-                        new_path = list(path)
-                        new_path.append(friendID)
-                        q.enqueue(new_path)
-        return visited                
+       
 
 
 
