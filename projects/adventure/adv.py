@@ -24,8 +24,23 @@ player = Player("Name", world.startingRoom)
 # FILL THIS IN
 traversalPath = ['n', 's']
 
+graph = {}
+
+print("*****\n")
+
+print(player.currentRoom.id)
+print(player.currentRoom.getExits())
+
+#if the room doesn't exist
+if player.currentRoom.id not in graph:
+    # Initialize in your room graph with '?' exits
+    graph[player.currentRoom.id] = {}
+    for exit in player.currentRoom.getExits():
+        graph[player.currentRoom.id][exit] = '?'
 
 
+print(graph)
+print("\n*****")
 
 
 
