@@ -1,6 +1,5 @@
 import random
-from queue import *
-
+import queue 
 
 class User:
     def __init__(self, name):
@@ -40,33 +39,33 @@ class SocialGraph:
         """
         Takes a number of users and an average number of friendships
         as arguments
-
         Creates that number of users and a randomly distributed friendships
         between those users.
-
         The number of users must be greater than the average number of friendships.
         """
         # Reset graph
         self.lastID = 0
         self.users = {}
         self.friendships = {}
+        # user.name = f"User {id}" giving a user a name
         # !!!! IMPLEMENT ME
 
         # Add users
         for i in range(numUsers):
             self.addUser(f"User {i+1}")
 
-        # Create friendships
+        # create friendships
         possibleFriendships = []
         for userID in self.users:
             for friendID in range(userID + 1, self.lastID + 1):
                 possibleFriendships.append((userID, friendID))
         random.shuffle(possibleFriendships)
-        print(possibleFriendships[:20])
-        print(len(possibleFriendships))
-
+        print("possible Friendships: ", possibleFriendships[:10])
+        print("possible Friendships length: ", len(possibleFriendships))
+        for friendship in possibleFriendships[: (numUsers * avgFriendships)// 2]:
+            self.addFriendship(friendship[0], friendship[1])
         # Create friendships
-# total == avg
+        # total == avg
 
     def getAllSocialPaths(self, userID):
         """
@@ -77,67 +76,54 @@ class SocialGraph:
         """
         visited = {}  # Note that this is a dictionary, not a set
         # !!!! IMPLEMENT ME
+        
         # Create an empty queue
-        q = Queue()
-        # Put UserID in our Queue 
-        q.put(userID)
+        q = queue.SimpleQueue()
+        # Put UserID in our Queue as a list item
+        q.put([userID])
+        
         # while queue is not empty...
         while q.qsize() > 0:
             #Dequeue first path from queue
-            path = []
-            path.append(q.get())
+            path = q.get()
             # get the current node from the last element in the path
             v = path[-1]
             # if that node is not in the visited dict
             if v not in visited:
                 # mark it as visited
                 visited[v] = path
-                print("visited:", visited)
-                print("friendships:", self.friendships)
-                # Then, put paths to all of it's children into the queue
+                
+                # Then, iterate through all friendships in the set
                 for friendship in self.friendships[v]:
-                    # copy path into new instance
-                    new_path = self.friendships[v]
-                    print("new_path:", new_path)    
-                    visited[v] = new_path
-                    #enqueue
-                    q.put(friendship)
+                   #if a friendship is not in the visited dict
+                   if friendship not in visited:
+                       # add the path (As a list) plus the friendship to the queue
+                       q.put(list(path) + [friendship])
                     
-        return (visited)
+        return visited
+
+    def social_paths(self, userID):
+        visited = {}
+        q = Queue()
+        q.enqueue([userID])
+        while q.size > 0:
+            path = q.dequeue()
+            newUserID = path[-1]
+            if newUserID not in visited:
+                visited[newUserID] = path
+                for friendID in self.friendships[newUserID]:
+                    if friendID not in visited:
+                        new_path = list(path)
+                        new_path.append(friendID)
+                        q.enqueue(new_path)
+        return visited                
+
+
+
 
 
 if __name__ == '__main__':
     sg = SocialGraph()
-    # sg.populateGraph(10, 2)
-    sg.addUser(1)
-    sg.addUser(2)
-    sg.addUser(3)
-    sg.addUser(4)
-    sg.addUser(5)
-    sg.addUser(6)
-    sg.addUser(7)
-    sg.addUser(8)
-    sg.addUser(9)
-    sg.addUser(10)
-    sg.addFriendship(1, 8)
-    sg.addFriendship(1, 10)
-    sg.addFriendship(1, 5)
-    sg.addFriendship(2, 10)
-    sg.addFriendship(2, 5)
-    sg.addFriendship(2, 7)
-    sg.addFriendship(3, 4)
-    sg.addFriendship(4, 9)
-    sg.addFriendship(4, 3)
-    sg.addFriendship(5, 8)
-    sg.addFriendship(5, 2)
-    sg.addFriendship(5, 1)
-    sg.addFriendship(6, 10)
-    sg.addFriendship(7, 2)
-    sg.addFriendship(8, 5)
-    sg.addFriendship(8, 1)
-    sg.addFriendship(9, 4)
-    sg.addFriendship(10, 1)
-    sg.addFriendship(10, 2)
-    sg.addFriendship(10, 6)
+    sg.populateGraph(10, 2)
     connections = sg.getAllSocialPaths(1)
     print(f"connections is {connections}")
