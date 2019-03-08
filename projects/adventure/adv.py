@@ -19,10 +19,39 @@ world.loadGraph(roomGraph)
 player = Player("Name", world.startingRoom)
 
 
+class Queue():
+    def __init__(self):
+        self.queue = []
+    def enqueue(self, value):
+        self.queue.append(value)
+    def dequeue(self):
+        if self.size() > 0:
+            return self.queue.pop(0)
+        else:
+            return None
+    def size(self):
+        return (len(self.queue))
 
+def find_nearest_unexplored(starting_room_id, graph):
+    q = Queue()
+    visited = set()
+    q.enqueue([starting_room_id])
+    while q.size() > 0:
+        path = q.dequeue()
+        current_room = path[-1]
+        if current_room not in visited:
+            visited.add(current_room)
+            # If current_room has an unexplored exit
+            if '?' in graph[current_room].values():
+                # Return path to that room
+                return path
+            for neighbor in graph[current_room].values:
+                new_path = list(path)
+                new_path.append(neighbor)
+                q.enqueue(new_path)
 
 # FILL THIS IN
-traversalPath = ['n', 's']
+traversalPath = ['n', 's', 'e', 'w']
 
 graph = {}
 
@@ -31,12 +60,70 @@ print("*****\n")
 print(player.currentRoom.id)
 print(player.currentRoom.getExits())
 
-#if the room doesn't exist
+dirToMove = 'n'
+
+previousRoom = None
+inverseDirections = {'n': 's', 's': 'n', 'w': 'e', 'e': 'w'}
+
+
+
+
+# While the map is not completely explored
+    #if the room doesn't exist
 if player.currentRoom.id not in graph:
-    # Initialize in your room graph with '?' exits
-    graph[player.currentRoom.id] = {}
-    for exit in player.currentRoom.getExits():
-        graph[player.currentRoom.id][exit] = '?'
+        # Initialize in your room graph with '?' exits
+        graph[player.currentRoom.id] = {}
+        for exit in player.currentRoom.getExits():
+            graph[player.currentRoom.id][exit] = '?'
+        # Update the graph entry for previous room
+            if previousRoom is not None:
+                graph[previousRoom][dirToMove] = player.currentRoom.id
+                oppositeDirection = inverseDirections[dirToMove]
+                graph[player.currentRoom.id][oppositeDirection] = previousRoom
+
+    # If there is an unexplored exit in the current room (i.e. a '?' exit), travel in that direction
+currentRoomExits = graph[player.currentRoom.id]
+print (f'current room exits are: {currentRoomExits}')
+
+fooBar = False
+print(graph.items())
+for key, value in graph.items():
+    for key, value in value.items():
+        if (value == '?'):
+            print('YESASSS')
+            break # Here! 
+
+    for direction in traversalPath:
+            if currentRoomExits[direction] == '?':
+                print('yes')
+                previousRoom = player.currentRoom.id
+                dirToMove = direction
+                player.travel(dirToMove)
+                    #if the room doesn't exist
+                if player.currentRoom.id not in graph:
+                    # Initialize in your room graph with '?' exits
+                    graph[player.currentRoom.id] = {}
+                    for exit in player.currentRoom.getExits():
+                        graph[player.currentRoom.id][exit] = '?'
+                    # Update the graph entry for previous room
+                        if previousRoom is not None:
+                            graph[previousRoom][dirToMove] = player.currentRoom.id
+                            oppositeDirection = inverseDirections[dirToMove]
+                            graph[player.currentRoom.id][oppositeDirection] = previousRoom
+
+print(f'the current room is: {player.currentRoom.id}')
+            # print(find_nearest_unexplored(player.currentRoom.id, graph))
+
+    # Else, find the nearest room with an unexplored exit and travel there
+    # print(find_nearest_unexplored(player.currentRoom.id, graph))
+
+
+    # graph[previousRoom][dirToMove] = player.currentRoom.id
+
+
+
+    # Else, find the nearest room with an unexplored exit and travel there
+    # print(find_nearest_unexplored(player.currentRoom.id, graph))
 
 
 print(graph)
