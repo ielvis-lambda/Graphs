@@ -18,7 +18,6 @@ roomGraph={494: [(1, 8), {'e': 457}], 492: [(1, 20), {'e': 400}], 493: [(2, 5), 
 world.loadGraph(roomGraph)
 player = Player("Name", world.startingRoom)
 
-
 class Queue():
     def __init__(self):
         self.queue = []
@@ -31,6 +30,20 @@ class Queue():
             return None
     def size(self):
         return (len(self.queue))
+
+# FILL THIS IN
+traversalPath = []
+
+graph = {}
+
+print("*****\n")
+
+print(player.currentRoom.id)
+print(player.currentRoom.getExits())
+
+directions = ('n', 's', 'e', 'w')
+
+inverseDirections = {'n': 's', 's': 'n', 'w': 'e', 'e': 'w'}
 
 def find_nearest_unexplored(starting_room_id, graph):
     q = Queue()
@@ -50,80 +63,71 @@ def find_nearest_unexplored(starting_room_id, graph):
                 new_path.append(neighbor)
                 q.enqueue(new_path)
 
-# FILL THIS IN
-traversalPath = ['n', 's', 'e', 'w']
+def traverseMap(player, direction = ''):
 
-graph = {}
+    # Check if all rooms have been explored and stop if they have.
+    if len(graph.keys()) == 500:
+        return
+    # While the map is not completely explored
+    # If the room doesn't exist
 
-print("*****\n")
+    currentRoom = player.currentRoom.id
 
-print(player.currentRoom.id)
-print(player.currentRoom.getExits())
+    if player.currentRoom.id not in graph:
+            # Initialize in your room graph with '?' exits
+            graph[player.currentRoom.id] = {}
+            for exit in player.currentRoom.getExits():
+                graph[player.currentRoom.id][exit] = '?'
 
-dirToMove = 'n'
+    # If coming from another room
+    if direction != '':
+        # find opposite direction of current travel
+        opposite = inverseDirections[direction]
+        # set prevRoom using Room method 'getRoomInDirection'
+        prevRoom = player.currentRoom.getRoomInDirection(opposite)
+        # Update the graph the entry for previous room
+        graph[currentRoom][opposite] = prevRoom.id
 
-previousRoom = None
-inverseDirections = {'n': 's', 's': 'n', 'w': 'e', 'e': 'w'}
-
-
-
-
-# While the map is not completely explored
-    #if the room doesn't exist
-if player.currentRoom.id not in graph:
-        # Initialize in your room graph with '?' exits
-        graph[player.currentRoom.id] = {}
-        for exit in player.currentRoom.getExits():
-            graph[player.currentRoom.id][exit] = '?'
-        # Update the graph entry for previous room
-            if previousRoom is not None:
-                graph[previousRoom][dirToMove] = player.currentRoom.id
-                oppositeDirection = inverseDirections[dirToMove]
-                graph[player.currentRoom.id][oppositeDirection] = previousRoom
+    new_direction = '?'
 
     # If there is an unexplored exit in the current room (i.e. a '?' exit), travel in that direction
-currentRoomExits = graph[player.currentRoom.id]
-print (f'current room exits are: {currentRoomExits}')
-
-fooBar = False
-print(graph.items())
-for key, value in graph.items():
-    for key, value in value.items():
-        if (value == '?'):
-            print('YESASSS')
-            break # Here! 
-
-    for direction in traversalPath:
-            if currentRoomExits[direction] == '?':
-                print('yes')
-                previousRoom = player.currentRoom.id
-                dirToMove = direction
-                player.travel(dirToMove)
-                    #if the room doesn't exist
-                if player.currentRoom.id not in graph:
-                    # Initialize in your room graph with '?' exits
-                    graph[player.currentRoom.id] = {}
-                    for exit in player.currentRoom.getExits():
-                        graph[player.currentRoom.id][exit] = '?'
-                    # Update the graph entry for previous room
-                        if previousRoom is not None:
-                            graph[previousRoom][dirToMove] = player.currentRoom.id
-                            oppositeDirection = inverseDirections[dirToMove]
-                            graph[player.currentRoom.id][oppositeDirection] = previousRoom
-
-print(f'the current room is: {player.currentRoom.id}')
-            # print(find_nearest_unexplored(player.currentRoom.id, graph))
+    for exit in player.currentRoom.getExits():
+        if graph[currentRoom][exit] == '?':
+            # if the current room has an unexplored exit set the new_direction to that exit
+            new_direction = exit
+            # travel there and append the current exit to the traversal path
+            player.travel(exit)
+            traversalPath.append(exit)
+            # set new_room to the player's current room and set the previous room's exit to the new room
+            new_room = player.currentRoom.id
+            graph[currentRoom][exit] = new_room
+            # Walk there
+            traverseMap(player, exit)
+            break
 
     # Else, find the nearest room with an unexplored exit and travel there
-    # print(find_nearest_unexplored(player.currentRoom.id, graph))
+
+    if new_direction == '?':
+        q = Queue()
+        visited = set()
+        q.enqueue([currentRoom])
+        while q.size() > 0:
+            path = q.dequeue()
+            currentRoom = path[-1]
+            if currentRoom not in visited:
+                visited.add(currentRoom)
+                # If currentRoom has an unexplored exit
+                if '?' in graph[currentRoom].values():
+                    # Return path to that room
+                    return path
+                for neighbor in graph[currentRoom].values():
+                    new_path = list(path)
+                    new_path.append(neighbor)
+                    q.enqueue(new_path)
 
 
-    # graph[previousRoom][dirToMove] = player.currentRoom.id
 
-
-
-    # Else, find the nearest room with an unexplored exit and travel there
-    # print(find_nearest_unexplored(player.currentRoom.id, graph))
+traverseMap(player)
 
 
 print(graph)
